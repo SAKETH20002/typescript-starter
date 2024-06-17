@@ -27,12 +27,12 @@ jobs:
       - name: Deploy to server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_HOST: your-server-ip
-          SSH_USERNAME: your-username
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
-          scp -i private_key.pem -r ./* $SSH_USERNAME@$SSH_HOST:/home/$SSH_USERNAME/typescript-starter
+          sudo chmod 600 private_key.pem
+          sudo scp -i private_key.pem -r ./* $SSH_USERNAME@$SSH_HOST:/home/$SSH_USERNAME/typescript-starter
           ssh -i private_key.pem $SSH_USERNAME@$SSH_HOST << 'EOF'
             cd /home/$SSH_USERNAME/typescript-starter
             npm install
