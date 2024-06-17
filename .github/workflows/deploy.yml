@@ -3,11 +3,11 @@ name: Deploy NestJS App
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: new
 
     steps:
       - name: Checkout code
