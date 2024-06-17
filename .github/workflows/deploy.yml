@@ -1,0 +1,42 @@
+name: Deploy NestJS App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: your-server-ip
+          SSH_USERNAME: your-username
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          scp -i private_key.pem -r ./* $SSH_USERNAME@$SSH_HOST:/home/$SSH_USERNAME/typescript-starter
+          ssh -i private_key.pem $SSH_USERNAME@$SSH_HOST << 'EOF'
+            cd /home/$SSH_USERNAME/typescript-starter
+            npm install
+            npm run build
+            pm2 stop nestjs-hello-world || true
+            pm2 start dist/main.js --name "nestjs-hello-world"
+          EOF
